@@ -2,8 +2,8 @@ const { config } = require("dotenv");
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 
-// Mongo Client
-const { MongoClient } = require("mongodb");
+// MongoDB connection
+const { connectDB, mongoClient } = require("./db");
 
 // Extract Signal from Message Using OpenAI
 const { extractSignal } = require("./openai");
@@ -13,8 +13,6 @@ const { TelegramClient, Api } = require("telegram");
 const { StoreSession } = require("telegram/sessions");
 const { NewMessage } = require("telegram/events");
 const readline = require("readline");
-
-// const mongoClient = new MongoClient(process.env.Mongo_URI);
 
 const { selectPair } = require("./selectPair");
 const { selectDuration } = require("./selectDuration");
@@ -38,6 +36,9 @@ const rl = readline.createInterface({
 puppeteer.use(StealthPlugin());
 
 (async () => {
+  // Connect to MongoDB before running the bot
+  await connectDB();
+
   // ------------------------------------
   // Launch Broswer and Login into Quotex
   // ------------------------------------

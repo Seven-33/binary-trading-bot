@@ -8,7 +8,7 @@ async function selectDuration(page, duration) {
 
     await page.waitForSelector(".section-deal__time", {
       visible: true,
-      timeout: 10000,
+      timeout: 30000,
     });
     console.log("Duration Form is visible");
 
