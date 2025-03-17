@@ -25,13 +25,29 @@ async function connectDB() {
   }
 }
 const signal = { Pair: "USD/BRL", Direction: "Down", Duration: "05:00" };
-async function insertSignal(signal) {
+const status = false;
+
+async function updateLastTrade(status) {
   const tradeColl = mongoClient
     .db("BinaryTradingDB")
     .collection("tradeCollection");
   const lastTrade = await tradeColl.findOne({}, { sort: { timestamp: -1 } });
-  console.log(lastTrade);
 
+  if (lastTrade) {
+    await tradeColl.updateOne(
+      { _id: lastTrade._id },
+      {
+        $set: {
+          status: status ? "loss" : "win",
+        },
+      }
+    );
+    console.log("Updated trade status successfully");
+  }
+  return lastTrade;
+}
+
+async function insertSignal(signal) {
   const doc = {
     pair: signal["Pair"],
     duration: signal["Duration"],
@@ -40,10 +56,10 @@ async function insertSignal(signal) {
     date: moment().format("YYYY-MM-DD"),
   };
   await tradeColl.insertOne(doc);
-
-  return lastTrade;
+  console.log("Inserted new signal in DB succesfully!");
 }
 
-connectDB();
-insertSignal(signal);
-// module.exports = { connectDB, insertSignal, mongoClient };
+// connectDB();
+// insertSignal(signal);
+// updateLastTrade(status);
+module.exports = { connectDB, insertSignal, updateLastTrade, mongoClient };

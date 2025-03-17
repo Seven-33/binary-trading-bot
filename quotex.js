@@ -9,6 +9,8 @@ const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const { selectPair } = require("./selectPair");
 const { selectDuration } = require("./selectDuration");
 const { selectDirection } = require("./selectDirection");
+const { fetchLastTradeResult } = require("./fetchLastTradeValue");
+const { selectSize } = require("./selectSize");
 
 //add the stealth plugin
 puppeteer.use(StealthPlugin());
@@ -76,18 +78,20 @@ const password = process.env.QUOTEX_PASSWORD;
   } else {
     console.log("Login input field not found!");
   }
+  await selectSize(page, "37");
 
-  // Step 1:Trade Pair
-  const tradePair = "USD/DZD";
-  await selectPair(page, tradePair);
+  // // Step 1:Trade Pair
+  // const tradePair = "USD/DZD";
+  // await selectPair(page, tradePair);
 
-  // Step 2: Set Duration
-  const duration = "10:00";
-  await selectDuration(page, duration);
+  // // Step 2: Set Duration
+  // const duration = "10:00";
+  // await selectDuration(page, duration);
 
-  // Step 3: Set Direction
-  const direction = "up";
-  await selectDirection(page, direction);
+  // // Step 3: Set Direction
+  // const direction = "up";
+  // await selectDirection(page, direction);
+
   //Log all class names in the DOM
   // const allElements = await page.evaluate(() =>
   //   [...document.querySelectorAll("*")].map((el) => el.className)

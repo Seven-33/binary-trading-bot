@@ -4,7 +4,12 @@ const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 
 // MongoDB connection
-const { connectDB, insertSignal, mongoClient } = require("./db");
+const {
+  connectDB,
+  insertSignal,
+  mongoClient,
+  updateLastTrade,
+} = require("./db");
 
 // Extract Signal from Message Using OpenAI
 const { extractSignal } = require("./openai");
@@ -19,6 +24,7 @@ const { selectPair } = require("./selectPair");
 const { selectDuration } = require("./selectDuration");
 const { selectDirection } = require("./selectDirection");
 const { selectSize } = require("./selectSize");
+const { fetchLastTradeValue } = require("./fetchLastTradeValue");
 
 config();
 
@@ -136,8 +142,12 @@ puppeteer.use(StealthPlugin());
 
     // Execute if there is a signal
     if (signal) {
+      // Store last trade result in DB
+      const lastTradeResult = fetchLastTradeValue(page);
+      const lastTrade = await updateLastTrade(lastTradeResult);
+
       // keep signal into DB
-      const lastTrade = await insertSignal(signal);
+      await insertSignal(signal);
 
       // Apply Martingale Strategy
       const todayDate = moment().format("YYYY-MM-DD");
@@ -149,11 +159,10 @@ puppeteer.use(StealthPlugin());
         }
       }
 
-      await selectSize(page, newTradeSize);
-
       // await selectSize(page);
       await selectPair(page, signal["Pair"]);
       await selectDuration(page, signal["Duration"]);
+      await selectSize(page, newTradeSize);
       await selectDirection(page, signal["Direction"]);
     } else {
       console.log("This is not a signal!");
