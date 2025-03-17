@@ -78,7 +78,7 @@ const password = process.env.QUOTEX_PASSWORD;
   } else {
     console.log("Login input field not found!");
   }
-  await selectSize(page, "37");
+  await selectSize(page, 37);
 
   // // Step 1:Trade Pair
   // const tradePair = "USD/DZD";

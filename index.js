@@ -146,9 +146,6 @@ puppeteer.use(StealthPlugin());
       const lastTradeResult = fetchLastTradeValue(page);
       const lastTrade = await updateLastTrade(lastTradeResult);
 
-      // keep signal into DB
-      await insertSignal(signal);
-
       // Apply Martingale Strategy
       const todayDate = moment().format("YYYY-MM-DD");
       const defaultTradeSize = 10;
@@ -158,12 +155,15 @@ puppeteer.use(StealthPlugin());
           newTradeSize = lastTrade.size * 2;
         }
       }
+      // keep signal into DB
+      await insertSignal(signal, newTradeSize);
 
       // await selectSize(page);
       await selectPair(page, signal["Pair"]);
       await selectDuration(page, signal["Duration"]);
       await selectSize(page, newTradeSize);
       await selectDirection(page, signal["Direction"]);
+      console.log("Successfully placed an order!");
     } else {
       console.log("This is not a signal!");
       return;

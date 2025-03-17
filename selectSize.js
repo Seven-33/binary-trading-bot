@@ -10,7 +10,7 @@ async function selectSize(page, size) {
     //
     await page.click(inputSelector, { clickCount: 3 }); // Select all text
     await page.keyboard.press("Backspace"); // Clear existing text
-    await page.type(inputSelector, size, { delay: 100 }); // Type new value
+    await page.type(inputSelector, String(size), { delay: 100 }); // Type new value
     console.log(`Successfully selected trade size: ${size}$`);
   } catch (error) {
     console.error("Error in selectSize:", error);
