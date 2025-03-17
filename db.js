@@ -1,4 +1,5 @@
 const { MongoClient, ServerApiVersion } = require("mongodb");
+const moment = require("moment");
 const { config } = require("dotenv");
 config();
 const uri = process.env.Mongo_URI;
@@ -23,5 +24,26 @@ async function connectDB() {
     console.log("MongoDB connection error: ", e);
   }
 }
+const signal = { Pair: "USD/BRL", Direction: "Down", Duration: "05:00" };
+async function insertSignal(signal) {
+  const tradeColl = mongoClient
+    .db("BinaryTradingDB")
+    .collection("tradeCollection");
+  const lastTrade = await tradeColl.findOne({}, { sort: { timestamp: -1 } });
+  console.log(lastTrade);
 
-module.exports = { connectDB, mongoClient };
+  const doc = {
+    pair: signal["Pair"],
+    duration: signal["Duration"],
+    direction: signal["Direction"],
+    timestamp: new Date(),
+    date: moment().format("YYYY-MM-DD"),
+  };
+  await tradeColl.insertOne(doc);
+
+  return lastTrade;
+}
+
+connectDB();
+insertSignal(signal);
+// module.exports = { connectDB, insertSignal, mongoClient };

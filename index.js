@@ -1,9 +1,10 @@
 const { config } = require("dotenv");
+const moment = require("moment");
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 
 // MongoDB connection
-const { connectDB, mongoClient } = require("./db");
+const { connectDB, insertSignal, mongoClient } = require("./db");
 
 // Extract Signal from Message Using OpenAI
 const { extractSignal } = require("./openai");
@@ -17,6 +18,7 @@ const readline = require("readline");
 const { selectPair } = require("./selectPair");
 const { selectDuration } = require("./selectDuration");
 const { selectDirection } = require("./selectDirection");
+const { selectSize } = require("./selectSize");
 
 config();
 
@@ -134,7 +136,23 @@ puppeteer.use(StealthPlugin());
 
     // Execute if there is a signal
     if (signal) {
-      await selectPair(page, signal["Pairs"]);
+      // keep signal into DB
+      const lastTrade = await insertSignal(signal);
+
+      // Apply Martingale Strategy
+      const todayDate = moment().format("YYYY-MM-DD");
+      const defaultTradeSize = 10;
+      let newTradeSize = defaultTradeSize;
+      if (lastTrade.date === todayDate) {
+        if (lastTrade.status === "loss") {
+          newTradeSize = lastTrade.size * 2;
+        }
+      }
+
+      await selectSize(page, newTradeSize);
+
+      // await selectSize(page);
+      await selectPair(page, signal["Pair"]);
       await selectDuration(page, signal["Duration"]);
       await selectDirection(page, signal["Direction"]);
     } else {

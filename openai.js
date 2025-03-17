@@ -8,7 +8,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY }); // Replace wi
 async function extractSignal(message) {
   const prompt = `Analyze the message and determine whether it contains a trading signal.
   If the message includes a signal, extract the relevant details in English and format them as follows: 
-  'Pairs: [currency pair], Direction: [Up/Down], Duration: [time]'.
+  'Pair: [currency pair], Direction: [Up/Down], Duration: [time]'.
   Exclude any links and unrelated text.
   
   ⬆️ means Up
@@ -21,7 +21,7 @@ async function extractSignal(message) {
       👉Par de moedas - EUR/AUD (OTC) - Para cima⬆️
       ⏱️Aposte por 5 minutos
     -Expected output:
-      Pairs: EUR/AUD, Direction: Up, Duration: 05:00
+      Pair: EUR/AUD, Direction: Up, Duration: 05:00
   Example 2:
     -message:
       ☑️ Mais uma vitória hoje
